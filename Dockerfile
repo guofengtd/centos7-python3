@@ -48,7 +48,6 @@ RUN curl -sLO "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTH
     printf "# For Python 2.7 in shebangs use '#!/usr/libexec/platform-python'\n" >> ~/.bashrc && \
     printf "\nsource scl_source enable devtoolset-8\n" >> ${HOME}/.bash_profile
 
-RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /
 
