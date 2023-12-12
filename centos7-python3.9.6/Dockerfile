@@ -33,21 +33,12 @@ WORKDIR /build
 RUN curl -sLO "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" && \
     tar -xzf "Python-${PYTHON_VERSION}.tgz" && \
     cd "Python-${PYTHON_VERSION}" && \
-    source scl_source enable devtoolset-8 && \
-    ./configure --help && \
-    ./configure --prefix=/usr/local \
-    --exec_prefix=/usr/local \
-    --with-ensurepip \
-    --enable-shared \
-    --enable-optimizations \
-    --with-lto \
-    --enable-ipv6 && \
+    ./configure && \
     make -j"$(($(nproc) - 1))" && \
     make install && \
     printf "\n# For Python 2.7 use 'python2'\n" >> ~/.bashrc && \
     printf "# For Python 2.7 in shebangs use '#!/usr/libexec/platform-python'\n" >> ~/.bashrc && \
     printf "\nsource scl_source enable devtoolset-8\n" >> ${HOME}/.bash_profile
-
 
 WORKDIR /
 
@@ -67,4 +58,3 @@ ENV PYTHON_PIP_VERSION=21.2.4
 
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["/bin/bash"]
-
