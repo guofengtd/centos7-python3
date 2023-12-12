@@ -4,28 +4,30 @@ SHELL [ "/bin/bash", "-c" ]
 
 RUN yum update -y && \
     yum install -y \
-        gcc \
-        openssl-devel \
-        bzip2 \
-        bzip2-devel \
-        libffi-devel \
-        lzma-devel \
-        zlib-devel \
-        xz-devel \
-        readline-devel \
-        sqlite \
-        sqlite-devel \
-        curl \
-        tar \
-        make \
-        centos-release-scl && \
-    yum install -y devtoolset-8 && \
-    yum clean all
+    gcc \
+    openssl-devel \
+    bzip2 \
+    bzip2-devel \
+    libffi-devel \
+    lzma-devel \
+    zlib-devel \
+    xz-devel \
+    readline-devel \
+    sqlite \
+    sqlite-devel \
+    curl \
+    tar \
+    make \
+    centos-release-scl && \
+    yum install -y devtoolset-8 
 
-ARG PYTHON_VERSION=3.9.9
+RUN yum install -y gcc gcc-c++ make cmake unzip zlib-devel libffi-devel openssl-devel pciutils net-tools sqlite-devel lapack-devel gcc-gfortran
+RUN yum clean all
+
+
+ARG PYTHON_VERSION=3.9.6
 WORKDIR /build
-# Set PATH to pickup virtualenv by default
-ENV PATH=/usr/local/venv/bin:"${PATH}"
+
 # As soon as NCSA Blue Waters is EOL and no longer needed, switch over to
 # centos:8 immediatley.
 RUN curl -sLO "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" && \
@@ -34,21 +36,20 @@ RUN curl -sLO "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTH
     source scl_source enable devtoolset-8 && \
     ./configure --help && \
     ./configure --prefix=/usr/local \
-        --exec_prefix=/usr/local \
-        --with-ensurepip \
-        --enable-shared \
-        --enable-optimizations \
-        --with-lto \
-        --enable-ipv6 && \
+    --exec_prefix=/usr/local \
+    --with-ensurepip \
+    --enable-shared \
+    --enable-optimizations \
+    --with-lto \
+    --enable-ipv6 && \
     make -j"$(($(nproc) - 1))" && \
     make install && \
     printf "\n# For Python 2.7 use 'python2'\n" >> ~/.bashrc && \
     printf "# For Python 2.7 in shebangs use '#!/usr/libexec/platform-python'\n" >> ~/.bashrc && \
-    printf "\nsource scl_source enable devtoolset-8\n" >> ${HOME}/.bash_profile && \
-    LD_LIBRARY_PATH=/usr/local/lib python3 -m venv /usr/local/venv && \
-    . /usr/local/venv/bin/activate && \
-    cd / && \
-    rm -rf /build
+    printf "\nsource scl_source enable devtoolset-8\n" >> ${HOME}/.bash_profile
+
+RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
 WORKDIR /
 
 ENV LC_ALL=en_US.UTF-8
@@ -67,3 +68,4 @@ ENV PYTHON_PIP_VERSION=21.2.4
 
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["/bin/bash"]
+
